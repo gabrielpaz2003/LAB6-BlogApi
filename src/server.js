@@ -1,32 +1,41 @@
 'use strict'
 
+// Configuaciones del Servidor
+const PORT = 3000
 const express = require('express')
+const app = express()
 const cors = require('cors')
 
-const swaggerJsDoc = require('swagger-jsdoc')
-const swaggerUi = require('swagger-ui-express')
+app.use(express.json())
+app.use(cors())
 
-const fs = require('fs')
+// Configuaciones de la Base de Datos
 const db = require('./db.js')
+const baseregex = /^data:([A-Za-z-+/]+);base64,(.+)$/ // Expresion regular para validar imagenes base64
 
-const PORT = 3000
-const app = express()
+// Configuaciones de los Logs
+const fs = require('fs')
 
-const baseregex = /^data:([A-Za-z-+/]+);base64,(.+)$/
 
-function handleUnsupportedMethod(req, res, next) {
+// Funcion para verificar verbos de Requests
+function verbosHTTP(req, res, next) {
   if (['GET', 'POST', 'PUT', 'DELETE'].includes(req.method)) {
     return next()
   }
   res.status(501).send('Not Implemented')
   return null
 }
+app.use(verbosHTTP)
+
+// Configuaciones del Swagger
+const swaggerJsDoc = require('swagger-jsdoc')
+const swaggerUi = require('swagger-ui-express')
 
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Blog API',
+      title: 'API Documentation',
       version: '1.0.0'
     },
     servers: [
@@ -35,7 +44,7 @@ const swaggerOptions = {
       }
     ]
   },
-  apis: ['./src/index.js']
+  apis: ['./src/server.js']
 }
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions)
@@ -51,23 +60,25 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(express.json())
-app.use(cors())
-
 app.use(
   '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocs)
 )
 
-app.use(handleUnsupportedMethod)
+/**
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: Operaciones relacionadas con los posts
+ */
 
 /**
  * @swagger
  * /posts:
  *    get:
  *      summary: Listar todas las publicaciones
- *      tags: [Blogs]
+ *      tags: [Posts]
  *      responses:
  *        '200':
  *          description: Listado de todas las publicaciones
@@ -76,173 +87,165 @@ app.use(handleUnsupportedMethod)
  *              schema:
  *                type: array
  *                items:
- *                  type: object
- *                  properties:
- *                    id:
- *                      type: string
- *                    title:
- *                      type: string
- *                    content:
- *                      type: string
+ *                  $ref: '#/components/schemas/Post'
  *        '500':
  *          description: Error interno del servidor
  *    post:
- *      summary: Crear nuevo post
- *      tags: [Blogs]
+ *      summary: Crear un nuevo post
+ *      tags: [Posts]
  *      requestBody:
  *        required: true
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              properties:
- *                title:
- *                  type: string
- *                content:
- *                  type: string
+ *              $ref: '#/components/schemas/Post'
  *      responses:
  *        '200':
- *          description: El post creado.
+ *          description: El post ha sido creado
  *          content:
  *            application/json:
  *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: string
- *                  title:
- *                    type: string
- *                  content:
- *                    type: string
- *        '500':
- *          description: Error interno del servidor
- * /posts/{id}:
- *    get:
- *      summary: Obtener detalles de un post
- *      tags: [Blogs]
- *      parameters:
- *        - in: path
- *          name: id
- *          schema:
- *            type: string
- *          required: true
- *          description: El id del post
- *      responses:
- *        '200':
- *          description: El post que se busca
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: string
- *                  title:
- *                    type: string
- *                  content:
- *                    type: string
- *        '400':
- *          description: Mala solicitud
- *        '500':
- *          description: Error interno del servidor
- *    put:
- *      summary: Actualizar un post por id
- *      tags: [Blogs]
- *      parameters:
- *        - in: path
- *          name: id
- *          schema:
- *            type: string
- *          required: true
- *          description: El id del post
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                title:
- *                  type: string
- *                content:
- *                  type: string
- *      responses:
- *        '200':
- *          description: El libro ha sido actualizado
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  id:
- *                    type: string
- *                  title:
- *                    type: string
- *                  content:
- *                    type: string
- *        '400':
- *          description: Mala solicitud
- *        '500':
- *          description: Error interno del servidor
- *    delete:
- *      summary: Eliminar un post por su id
- *      tags: [Blogs]
- *      parameters:
- *        - in: path
- *          name: id
- *          schema:
- *            type: string
- *          required: true
- *          description: El id del post
- *      responses:
- *        '204':
- *          description: El libro ha sido eliminado
+ *                $ref: '#/components/schemas/Post'
  *        '500':
  *          description: Error interno del servidor
  */
+
+/**
+ * @swagger
+ * /posts/{id}:
+ *    get:
+ *      summary: Obtener detalles de un post específico
+ *      tags: [Posts]
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *            type: string
+ *          description: El ID del post
+ *      responses:
+ *        '200':
+ *          description: Detalles del post
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Post'
+ *        '400':
+ *          description: Solicitud incorrecta
+ *        '500':
+ *          description: Error interno del servidor
+ *    put:
+ *      summary: Actualizar un post por ID
+ *      tags: [Posts]
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *            type: string
+ *          description: El ID del post
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Post'
+ *      responses:
+ *        '200':
+ *          description: El post ha sido actualizado
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Post'
+ *        '400':
+ *          description: Solicitud incorrecta
+ *        '500':
+ *          description: Error interno del servidor
+ *    delete:
+ *      summary: Eliminar un post por ID
+ *      tags: [Posts]
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *            type: string
+ *          description: El ID del post a eliminar
+ *      responses:
+ *        '204':
+ *          description: El post ha sido eliminado
+ *        '500':
+ *          description: Error interno del servidor
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Post:
+ *       type: object
+ *       required:
+ *         - title
+ *         - content
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: El ID único del post
+ *         title:
+ *           type: string
+ *           description: El título del post
+ *         content:
+ *           type: string
+ *           description: El contenido del post
+ *       example:
+ *         id: d5fE_asz
+ *         title: Título del post
+ *         content: Contenido del post
+ */
+
+// Endpoint para obtener todos los posts de la base de datos
 app.get('/posts', async (req, res) => {
-  req.body = null
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    endpoint: '/posts',
-    payload: req.query,
-    response: null
-  }
-
+  req.payload = null;
+  const registro = {
+    fecha: new Date().toISOString(),
+    ruta: '/posts',
+    data: req.query,
+    respuesta: null
+  };
   try {
-    const posts = await db.getAllPosts()
-    logEntry.response = posts
-    res.status(200).json(posts)
-  } catch (err) {
-    logEntry.response = { error: err }
-    res.status(500).json({ error: err })
+    const post = await db.leerPosts();
+    registro.respuesta = post;
+    res.status(200).json(post);
+  } catch (error) {
+    registro.respuesta = { error };
+    res.status(500).json({ error });
   } finally {
-    fs.appendFile('log.txt', JSON.stringify(logEntry) + '\n', (err) => {
-      if (err) {
-        console.log(err)
+    fs.appendFile('api_logs.txt', JSON.stringify(registro) + '\n', (error) => {
+      if (error) {
+        console.log(error);
       }
-    })
+    });
   }
-})
+});
 
+// Enpoint para obtener un post especifico
 app.get('/posts/:id', async (req, res) => {
   const logEntry = {
-    timestamp: new Date().toISOString(),
-    endpoint: '/posts/:id',
-    payload: req.query,
-    response: null
+    fecha: new Date().toISOString(),
+    ruta: '/posts/:id',
+    data: req.query,
+    respuesta: null
   }
-
   try {
     const id = req.params.id
-    const post = await db.getPostById(id)
-    logEntry.response = post
+    const post = await db.leerPostEspecifico(id)
+    logEntry.respuesta = post
     res.status(200).json(post)
   } catch (err) {
-    logEntry.response = { error: err }
+    logEntry.respuesta = { error: err }
     res.status(500).json({ error: err })
   } finally {
-    fs.appendFile('log.txt', JSON.stringify(logEntry) + '\n', (err) => {
+    fs.appendFile('api_logs.txt', JSON.stringify(logEntry) + '\n', (err) => {
       if (err) {
         console.log(err)
       }
@@ -250,12 +253,13 @@ app.get('/posts/:id', async (req, res) => {
   }
 })
 
+// Endpoint para crear un post
 app.post('/posts', async (req, res) => {
   const logEntry = {
-    timestamp: new Date().toISOString(),
-    endpoint: '/posts',
-    payload: req.body,
-    response: null
+    fecha: new Date().toISOString(),
+    ruta: '/posts',
+    data: req.body,
+    respuesta: null
   }
   try {
     const title = req.body.title
@@ -266,26 +270,26 @@ app.post('/posts', async (req, res) => {
     }
     if (image) {
       if (baseregex.test(image)) {
-        const post = await db.createPostWithImage(title, content, image)
-        logEntry.response = post
+        const post = await db.crearPostConImagen(title, content, image)
+        logEntry.respuesta = post
         res.status(200).json(post)
       } else {
         throw new Error('Bad Request')
       }
     } else {
-      const post = await db.createPost(title, content)
-      logEntry.response = post
+      const post = await db.crearPost(title, content)
+      logEntry.respuesta = post
       res.status(200).json(post)
     }
   } catch (err) {
-    logEntry.response = { error: err }
+    logEntry.respuesta = { error: err }
     if (res.status(err.isBoom)) {
       res.status(400).json({ error: err })
     } else {
       res.status(500).json({ error: err })
     }
   } finally {
-    fs.appendFile('log.txt', JSON.stringify(logEntry) + '\n', (err) => {
+    fs.appendFile('api_logs.txt', JSON.stringify(logEntry) + '\n', (err) => {
       if (err) {
         console.log(err)
       }
@@ -293,14 +297,16 @@ app.post('/posts', async (req, res) => {
   }
 })
 
+
+
+// Endpoint para actualizar un post
 app.put('/posts/:id', async (req, res) => {
   const logEntry = {
-    timestamp: new Date().toISOString(),
-    endpoint: '/posts/:id',
-    payload: req.body,
-    response: null
+    fecha: new Date().toISOString(),
+    ruta: '/posts/:id',
+    data: req.body,
+    respuesta: null
   }
-
   try {
     const id = req.params.id
     const title = req.body.title
@@ -311,26 +317,26 @@ app.put('/posts/:id', async (req, res) => {
     }
     if (image) {
       if (baseregex.test(image)) {
-        const post = await db.updatePostWithImage(id, title, content, image)
-        logEntry.response = post
+        const post = await db.actualizarPostConImagen(id, title, content, image)
+        logEntry.respuesta = post
         res.status(200).json(post)
       } else {
         throw new Error('Bad Request')
       }
     } else {
-      const post = await db.updatePost(id, title, content)
-      logEntry.response = post
+      const post = await db.actualizarPost(id, title, content)
+      logEntry.respuesta = post
       res.status(200).json(post)
     }
   } catch (err) {
-    logEntry.response = { error: err }
+    logEntry.respuesta = { error: err }
     if (res.status(err.isBoom)) {
       res.status(400).json({ error: err })
     } else {
       res.status(500).json({ error: err })
     }
   } finally {
-    fs.appendFile('log.txt', JSON.stringify(logEntry) + '\n', (err) => {
+    fs.appendFile('api_logs.txt', JSON.stringify(logEntry) + '\n', (err) => {
       if (err) {
         console.log(err)
       }
@@ -338,33 +344,35 @@ app.put('/posts/:id', async (req, res) => {
   }
 })
 
+// Endpoint para eliminar un post
 app.delete('/posts/:id', async (req, res) => {
   const logEntry = {
-    timestamp: new Date().toISOString(),
-    endpoint: '/posts/:id',
-    payload: req.body,
-    response: null
+    fecha: new Date().toISOString(),
+    ruta: '/posts/:id',
+    data: req.body,
+    respuesta: null
   }
-
   try {
     const id = req.params.id
-    const post = await db.deletePost(id)
-    logEntry.response = post
+    const post = await db.eliminarPost(id)
+    logEntry.respuesta = post
     res.status(204).json(post)
   } catch (err) {
-    logEntry.response = { error: err }
+    logEntry.respuesta = { error: err }
     res.status(500).json({ error: err })
   } finally {
-    fs.appendFile('log.txt', JSON.stringify(logEntry) + '\n', (err) => {
+    fs.appendFile('api_logs.txt', JSON.stringify(logEntry) + '\n', (err) => {
       if (err) {
         console.log(err)
       }
     })
   }
-})
-
-app.use((req, res) => {
-  res.status(404).send('404 Not Found: El endpoint solicitado no existe.')
 })
 
 app.listen(PORT)
+console.log(`Server running on port ${PORT}`)
+
+app.use((req, res) => { // funcion de validacion de endpoints
+  res.status(404).send('404 Not Found: El endpoint solicitado no existe.')
+})
+

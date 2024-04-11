@@ -1,0 +1,17 @@
+{"fecha":"2024-04-10T16:09:56.398Z","ruta":"/posts","datos":{},"respuesta":[{"id":1,"title":"Título del post","content":"Contenido del post","image_64":null}]}
+{"fecha":"2024-04-10T16:14:01.959Z","ruta":"/posts/:id","datos":{},"respuesta":[{"id":1,"title":"Título del post","content":"Contenido del post","image_64":null}]}
+{"fecha":"2024-04-10T16:22:48.514Z","ruta":"/posts","response":null,"respuesta":{"error":{}}}
+{"fecha":"2024-04-10T16:25:11.470Z","ruta":"/posts","respuesta":{"error":{}}}
+{"fecha":"2024-04-11T04:11:47.317Z","ruta":"/posts","data":{},"respuesta":[{"id":1,"title":"Título del post","content":"Contenido del post","image_64":null}]}
+{"fecha":"2024-04-11T04:13:09.672Z","ruta":"/posts/:id","respuesta":{"error":{}}}
+{"fecha":"2024-04-11T04:13:17.528Z","ruta":"/posts/:id","respuesta":{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":2,"warningStatus":0,"changedRows":0}}
+{"fecha":"2024-04-11T04:13:31.150Z","ruta":"/posts/:id","respuesta":{"fieldCount":0,"affectedRows":0,"insertId":0,"info":"","serverStatus":2,"warningStatus":0,"changedRows":0}}
+{"fecha":"2024-04-11T04:13:38.755Z","ruta":"/posts","data":{},"respuesta":[]}
+{"fecha":"2024-04-11T04:19:29.124Z","ruta":"/posts","data":{},"respuesta":[]}
+{"fecha":"2024-04-11T04:29:44.928Z","ruta":"/posts","data":{},"respuesta":[{"id":3,"title":"Nuevo post","content":"Contenido del nuevo post","image_64":null}]}
+{"fecha":"2024-04-11T04:30:38.902Z","ruta":"/posts/:id","data":{"title":"Nuevo post 1","content":"Contenido del nuevo post 1"},"respuesta":{"fieldCount":0,"affectedRows":0,"insertId":0,"info":"Rows matched: 0  Changed: 0  Warnings: 0","serverStatus":2,"warningStatus":0,"changedRows":0}}
+{"fecha":"2024-04-11T04:30:46.484Z","ruta":"/posts/:id","data":{},"respuesta":[]}
+{"fecha":"2024-04-11T04:30:55.343Z","ruta":"/posts","data":{},"respuesta":[{"id":3,"title":"Nuevo post","content":"Contenido del nuevo post","image_64":null}]}
+{"fecha":"2024-04-11T04:31:01.656Z","ruta":"/posts/:id","data":{},"respuesta":[{"id":3,"title":"Nuevo post","content":"Contenido del nuevo post","image_64":null}]}
+{"fecha":"2024-04-11T04:31:11.801Z","ruta":"/posts/:id","data":{},"respuesta":{"fieldCount":0,"affectedRows":1,"insertId":0,"info":"","serverStatus":2,"warningStatus":0,"changedRows":0}}
+{"fecha":"2024-04-11T04:31:19.635Z","ruta":"/posts","data":{},"respuesta":[]}

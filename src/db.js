@@ -1,61 +1,69 @@
 'use strict'
-
-const connection = require('./conn.js')
+const connection = require('./conn.js') // Importar la conexion de la base de datos
 const conn = connection.pool
 
-async function getAllPosts() {
-  const [rows] = await conn.query('SELECT * FROM blogs')
+// Funcion para leer todos los Posts
+async function leerPosts() {
+  const [rows] = await conn.query('SELECT * FROM Posts')
   return rows
 }
 
-async function getPostById(id) {
-  const [row] = await conn.query('SELECT * FROM blogs WHERE id = ?', [id])
+// Funcion para leer un Post especifico
+async function leerPostEspecifico(id) {
+  const [row] = await conn.query('SELECT * FROM Posts WHERE id = ?', [id])
   return row
 }
 
-async function createPost(title, content) {
+// Funcion para crear un post
+async function crearPost(title, content) {
   const [result] = await conn.query(
-    'INSERT INTO blogs (title, content) VALUES (?, ?)',
+    'INSERT INTO Posts (title, content) VALUES (?, ?)',
     [title, content]
   )
   return result
 }
 
-async function createPostWithImage(title, content, image) {
+// Funcion para crear un post con imagen
+async function crearPostConImagen(title, content, image) {
   const [result] = await conn.query(
-    'INSERT INTO blogs (title, content, image) VALUES (?, ?, ?)',
+    'INSERT INTO Posts (title, content, image) VALUES (?, ?, ?)',
     [title, content, image]
   )
   return result
 }
 
-async function deletePost(id) {
-  const [result] = await conn.query('DELETE FROM blogs WHERE id = ?', [id])
-  return result
-}
-
-async function updatePost(id, title, content) {
+// Funcion para actualizar un post
+async function actualizarPost(id, title, content) {
   const [result] = await conn.query(
-    'UPDATE blogs SET title = ?, content = ? WHERE id = ?',
+    'UPDATE Posts SET title = ?, content = ? WHERE id = ?',
     [title, content, id]
   )
   return result
 }
 
-async function updatePostWithImage(id, title, content, image) {
+// Funcion para actualizar un post con imagen
+async function actualizarPostConImagen(id, title, content, image) {
   const [result] = await conn.query(
-    'UPDATE blogs SET title = ?, content = ?, image = ? WHERE id = ?',
+    'UPDATE Posts SET title = ?, content = ?, image = ? WHERE id = ?',
     [title, content, image, id]
   )
   return result
 }
 
+// Funcion para eliminar un post
+async function eliminarPost(id) {
+  const [result] = await conn.query('DELETE FROM Posts WHERE id = ?', [id])
+  return result
+}
+
+
+// Exportar las funciones al server
 module.exports = {
-  getAllPosts,
-  getPostById,
-  createPost,
-  deletePost,
-  updatePost,
-  createPostWithImage,
-  updatePostWithImage
+  leerPosts,
+  leerPostEspecifico,
+  crearPost,
+  crearPostConImagen,
+  actualizarPost,
+  actualizarPostConImagen,
+  eliminarPost
 }
